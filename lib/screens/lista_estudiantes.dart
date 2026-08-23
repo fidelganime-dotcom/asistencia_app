@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:excel/excel.dart' hide Border;
+import 'package:excel/excel.dart' hide Border, TextSpan;
 import '../models/estudiante.dart';
 import '../services/estudiante_service.dart';
 import '../utils/file_helper.dart';
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 
 class ListaEstudiantesScreen extends StatefulWidget {
   const ListaEstudiantesScreen({super.key});
@@ -418,8 +420,8 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
             const SizedBox(height: 20),
             // Tarjeta
             Container(
-              width: 300,
-              padding: const EdgeInsets.all(24),
+              width: 320,
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -442,54 +444,172 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
                 children: [
                   const Text(
                     'INGENIERIA DE SISTEMAS',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
                   ),
                   const SizedBox(height: 20),
                   Text(
                     estudiante.nombreCompleto,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       'RU: ${estudiante.ru}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-                    child: QrImageView(data: estudiante.ru, version: QrVersions.auto, size: 160),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
+                    child: QrImageView(data: estudiante.ru, version: QrVersions.auto, size: 240),
                   ),
                   const SizedBox(height: 16),
-                  Text('UAP - Ingenieria de Sistemas', style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.7))),
+                  Text('UAP - Ingenieria de Sistemas', style: TextStyle(fontSize: 12, color: Colors.white.withValues(alpha: 0.7))),
                 ],
               ),
             ),
             const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00FFCC),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            // Botones
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      await _descargarTarjeta(estudiante);
+                    },
+                    icon: const Icon(Icons.download, color: Colors.white),
+                    label: const Text('Descargar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0066FF),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
                 ),
-                child: const Text('Cerrar', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-              ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00FFCC),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Cerrar', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _descargarTarjeta(Estudiante estudiante) async {
+    try {
+      // Crear imagen de la tarjeta
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      final size = const Size(600, 800);
+
+      // Fondo de la tarjeta
+      final paint = Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF0066FF),
+            const Color(0xFF00CCAA),
+          ],
+        ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(30)),
+        paint,
+      );
+
+      // Texto titulo
+      final titlePainter = TextPainter(
+        text: const TextSpan(
+          text: 'INGENIERIA DE SISTEMAS',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      );
+      titlePainter.layout();
+      titlePainter.paint(canvas, Offset((size.width - titlePainter.width) / 2, 40));
+
+      // Nombre
+      final namePainter = TextPainter(
+        text: TextSpan(
+          text: estudiante.nombreCompleto,
+          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      );
+      namePainter.layout();
+      namePainter.paint(canvas, Offset((size.width - namePainter.width) / 2, 100));
+
+      // RU
+      final ruPainter = TextPainter(
+        text: TextSpan(
+          text: 'RU: ${estudiante.ru}',
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      );
+      ruPainter.layout();
+      ruPainter.paint(canvas, Offset((size.width - ruPainter.width) / 2, 160));
+
+      // QR
+      final qrPainter = QrPainter(
+        data: estudiante.ru,
+        version: QrVersions.auto,
+        eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.circle, color: Colors.black),
+        dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.circle, color: Colors.black),
+      );
+      // Dibujar QR en la imagen
+      canvas.save();
+      canvas.translate((size.width - 300) / 2, 220);
+      qrPainter.paint(canvas, const Size(300, 300));
+      canvas.restore();
+
+      // Footer
+      final footerPainter = TextPainter(
+        text: TextSpan(
+          text: 'UAP - Ingenieria de Sistemas',
+          style: TextStyle(fontSize: 20, color: Colors.white.withValues(alpha: 0.8)),
+        ),
+        textDirection: ui.TextDirection.ltr,
+      );
+      footerPainter.layout();
+      footerPainter.paint(canvas, Offset((size.width - footerPainter.width) / 2, 560));
+
+      final picture = recorder.endRecording();
+      final image = await picture.toImage(size.width.toInt(), size.height.toInt());
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final bytes = byteData!.buffer.asUint8List();
+
+      await FileHelper.saveAndShare(bytes, 'tarjeta_${estudiante.ru}.png', 'Tarjeta de ${estudiante.nombreCorto}');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Tarjeta descargada'), backgroundColor: Color(0xFF00FFCC)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   void _mostrarDialogoEditar(BuildContext context, Estudiante estudiante) {
