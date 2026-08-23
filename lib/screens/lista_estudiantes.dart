@@ -552,69 +552,81 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
 
   Future<void> _descargarTarjeta(Estudiante estudiante) async {
     try {
-      // Crear imagen de la tarjeta
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder);
       final size = const Size(600, 800);
 
-      // Fondo de la tarjeta
-      final paint = Paint()
+      // Fondo de la tarjeta - gradiente igual a la vista
+      final bgPaint = Paint()
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF0066FF),
-            const Color(0xFF00CCAA),
+            const Color(0xFF0066FF).withValues(alpha: 0.8),
+            const Color(0xFF00FFCC).withValues(alpha: 0.6),
           ],
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(30)),
-        paint,
+        bgPaint,
       );
 
-      // Texto titulo
+      // INGENIERIA DE SISTEMAS
       final titlePainter = TextPainter(
         text: const TextSpan(
           text: 'INGENIERIA DE SISTEMAS',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2),
         ),
         textDirection: ui.TextDirection.ltr,
       );
       titlePainter.layout();
-      titlePainter.paint(canvas, Offset((size.width - titlePainter.width) / 2, 40));
+      titlePainter.paint(canvas, Offset((size.width - titlePainter.width) / 2, 50));
 
-      // Nombre
+      // Nombre del estudiante
       final namePainter = TextPainter(
         text: TextSpan(
           text: estudiante.nombreCompleto,
-          style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white),
         ),
+        maxLines: 2,
         textDirection: ui.TextDirection.ltr,
       );
-      namePainter.layout();
-      namePainter.paint(canvas, Offset((size.width - namePainter.width) / 2, 100));
+      namePainter.layout(maxWidth: size.width - 60);
+      namePainter.paint(canvas, Offset((size.width - namePainter.width) / 2, 120));
 
-      // RU
-      final ruPainter = TextPainter(
+      // RU - fondo semitransparente como en la tarjeta
+      final ruBgPaint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.2);
+      final ruTextPainter = TextPainter(
         text: TextSpan(
           text: 'RU: ${estudiante.ru}',
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         textDirection: ui.TextDirection.ltr,
       );
-      ruPainter.layout();
-      ruPainter.paint(canvas, Offset((size.width - ruPainter.width) / 2, 160));
+      ruTextPainter.layout();
+      final ruX = (size.width - ruTextPainter.width - 48) / 2;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH(ruX, 210, ruTextPainter.width + 48, ruTextPainter.height + 20), const Radius.circular(20)),
+        ruBgPaint,
+      );
+      ruTextPainter.paint(canvas, Offset(ruX + 24, 220));
 
-      // QR
+      // QR - fondo blanco, tamaño grande
+      final qrBgPaint = Paint()..color = Colors.white;
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(Rect.fromLTWH((size.width - 380) / 2, 290, 380, 380), const Radius.circular(20)),
+        qrBgPaint,
+      );
+
       final qrPainter = QrPainter(
         data: estudiante.ru,
         version: QrVersions.auto,
         eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Colors.black),
         dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Colors.black),
       );
-      // Dibujar QR en la imagen
       canvas.save();
-      canvas.translate((size.width - 350) / 2, 220);
+      canvas.translate((size.width - 350) / 2, 305);
       qrPainter.paint(canvas, const Size(350, 350));
       canvas.restore();
 
@@ -622,12 +634,12 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
       final footerPainter = TextPainter(
         text: TextSpan(
           text: 'UAP - Ingenieria de Sistemas',
-          style: TextStyle(fontSize: 20, color: Colors.white.withValues(alpha: 0.8)),
+          style: TextStyle(fontSize: 22, color: Colors.white.withValues(alpha: 0.7)),
         ),
         textDirection: ui.TextDirection.ltr,
       );
       footerPainter.layout();
-      footerPainter.paint(canvas, Offset((size.width - footerPainter.width) / 2, 560));
+      footerPainter.paint(canvas, Offset((size.width - footerPainter.width) / 2, 700));
 
       final picture = recorder.endRecording();
       final image = await picture.toImage(size.width.toInt(), size.height.toInt());
