@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:vibration/vibration.dart';
 import '../services/estudiante_service.dart';
 import '../services/asistencia_service.dart';
 
@@ -89,7 +90,13 @@ class _EscanearQRScreenState extends State<EscanearQRScreen> {
       );
 
       // Vibracion de confirmacion
-      HapticFeedback.lightImpact();
+      try {
+        if (await Vibration.hasVibrator() ?? false) {
+          Vibration.vibrate(duration: 100);
+        }
+      } catch (e) {
+        // Silenciar si no hay vibrador
+      }
 
       _mostrarResultado(
         exito: true,
