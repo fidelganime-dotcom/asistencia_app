@@ -556,15 +556,12 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
       final canvas = Canvas(recorder);
       final size = const Size(600, 800);
 
-      // Fondo de la tarjeta - gradiente igual a la vista
+      // Fondo solido azul degradado sin transparencia
       final bgPaint = Paint()
-        ..shader = LinearGradient(
+        ..shader = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF0066FF).withValues(alpha: 0.8),
-            const Color(0xFF00FFCC).withValues(alpha: 0.6),
-          ],
+          colors: [Color(0xFF0066FF), Color(0xFF00CCAA)],
         ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH(0, 0, size.width, size.height), const Radius.circular(30)),
@@ -594,9 +591,8 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
       namePainter.layout(maxWidth: size.width - 60);
       namePainter.paint(canvas, Offset((size.width - namePainter.width) / 2, 120));
 
-      // RU - fondo semitransparente como en la tarjeta
-      final ruBgPaint = Paint()
-        ..color = Colors.white.withValues(alpha: 0.2);
+      // RU - fondo semitransparente
+      final ruBgPaint = Paint()..color = const Color(0x33FFFFFF);
       final ruTextPainter = TextPainter(
         text: TextSpan(
           text: 'RU: ${estudiante.ru}',
@@ -612,13 +608,14 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
       );
       ruTextPainter.paint(canvas, Offset(ruX + 24, 220));
 
-      // QR - fondo blanco, tamaño grande
+      // QR - fondo BLANCO PURO
       final qrBgPaint = Paint()..color = Colors.white;
       canvas.drawRRect(
         RRect.fromRectAndRadius(Rect.fromLTWH((size.width - 380) / 2, 290, 380, 380), const Radius.circular(20)),
         qrBgPaint,
       );
 
+      // QR modulos NEGROS sobre fondo blanco
       final qrPainter = QrPainter(
         data: estudiante.ru,
         version: QrVersions.auto,
@@ -634,7 +631,7 @@ class _ListaEstudiantesScreenState extends State<ListaEstudiantesScreen> {
       final footerPainter = TextPainter(
         text: TextSpan(
           text: 'UAP - Ingenieria de Sistemas',
-          style: TextStyle(fontSize: 22, color: Colors.white.withValues(alpha: 0.7)),
+          style: TextStyle(fontSize: 22, color: Colors.white.withValues(alpha: 0.8)),
         ),
         textDirection: ui.TextDirection.ltr,
       );
