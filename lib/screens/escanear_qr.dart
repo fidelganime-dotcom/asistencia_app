@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../services/estudiante_service.dart';
 import '../services/asistencia_service.dart';
@@ -86,6 +87,9 @@ class _EscanearQRScreenState extends State<EscanearQRScreen> {
         apellidoMaterno: estudiante.apellidoMaterno,
         estado: 'Presente',
       );
+
+      // Vibracion de confirmacion
+      HapticFeedback.lightImpact();
 
       _mostrarResultado(
         exito: true,
