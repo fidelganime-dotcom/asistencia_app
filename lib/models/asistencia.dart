@@ -22,6 +22,10 @@ class Asistencia {
   String get nombreCompleto =>
       '$nombres $apellidoPaterno $apellidoMaterno'.trim().toUpperCase();
 
+  String get nombreCorto => '${nombres.split(' ').first} $apellidoPaterno'
+      .trim()
+      .toUpperCase();
+
   factory Asistencia.fromMap(Map<String, dynamic> map) {
     return Asistencia(
       id: map['id'],
