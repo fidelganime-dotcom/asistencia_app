@@ -15,15 +15,15 @@ class _EscanearQRScreenState extends State<EscanearQRScreen> {
   final _asistenciaService = AsistenciaService();
   MobileScannerController? _cameraController;
   bool _procesando = false;
-  String? _ultimoResultado;
   bool _escaneoActivo = true;
 
   @override
   void initState() {
     super.initState();
     _cameraController = MobileScannerController(
-      detectionSpeed: DetectionSpeed.normal,
+      detectionSpeed: DetectionSpeed.noDuplicates,
       facing: CameraFacing.back,
+      torchEnabled: false,
     );
   }
 
@@ -38,8 +38,7 @@ class _EscanearQRScreenState extends State<EscanearQRScreen> {
 
     for (final barcode in capture.barcodes) {
       final data = barcode.rawValue;
-      if (data != null && data != _ultimoResultado) {
-        _ultimoResultado = data;
+      if (data != null) {
         _procesarQR(data);
         break;
       }
@@ -164,7 +163,6 @@ class _EscanearQRScreenState extends State<EscanearQRScreen> {
                   if (mounted) {
                     setState(() {
                       _escaneoActivo = true;
-                      _ultimoResultado = null;
                     });
                   }
                 });
