@@ -102,7 +102,6 @@ class AsistenciaApp extends StatelessWidget {
         ),
         filled: true,
         fillColor: const Color(0xFFF5F7FA),
-        borderRadius: BorderRadius.circular(16),
         hintStyle: const TextStyle(color: Color(0xFF8592A8)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(

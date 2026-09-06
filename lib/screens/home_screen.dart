@@ -54,13 +54,13 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         title: Row(
           children: [
-            Container(
+Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Color(0xFF0066FF), Color(0xFF00FFCC)],
-                  borderRadius: BorderRadius.circular(10),
                 ),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
             ),
